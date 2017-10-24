@@ -1,0 +1,241 @@
+---
+title: "Tidyquant Demo"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyquant)
+```
+
+Tutorial from http://www.business-science.io/code-tools/2017/10/23/demo_week_tidyquant.html
+
+# Stock Prices 
+
+## Get Stock price data
+
+```{r}
+# Get Stock Prices from Yahoo! Finance
+
+FANG_symbols <- c("FB", "AMZN", "NFLX", "GOOG")
+
+# daily stock prices
+FANG_data_d <- FANG_symbols %>%
+    tq_get(get = "stock.prices", 
+           from = "2014-01-01", 
+           to = "2016-12-31")
+
+FANG_data_d
+```
+
+## Simple Stock price plot .. 
+
+```{r}
+FANG_data_d %>%
+    ggplot(aes(x = date, y = adjusted, color = symbol)) + 
+    geom_line() +
+    facet_wrap(~ symbol, ncol = 2, scales = "free_y") +
+    theme_tq() +
+    scale_color_tq()
+```
+
+
+# Economic Data
+
+Data from FRED : https://fred.stlouisfed.org/
+
+```{r}
+# Economic Data from the FRED
+
+# Create a vector of FRED symbols
+FRED_symbols <- c('ETOTALUSQ176N',    # All housing units
+                  'EVACANTUSQ176N',   # Vacant
+                  'EYRVACUSQ176N',    # Year-round vacant
+                  'ERENTUSQ176N'      # Vacant for rent
+)
+
+# Pass symbols to tq_get to get economic data
+FRED_data_m <- FRED_symbols %>%
+    tq_get(get="economic.data", 
+           from = "2001-04-01")
+
+# Show results
+FRED_data_m
+```
+
+## Economic Data Plotting
+
+Daily data
+
+```{r}
+
+FRED_data_m %>%
+    ggplot(aes(x = date, y = price, color = symbol)) + 
+    geom_line() +
+    facet_wrap(~ symbol, ncol = 2, scales = "free_y") +
+    theme_tq() +
+    scale_color_tq() +
+    labs(title = "Visualize Economic Data")
+```
+
+# Mutating Data
+
+Change periodicity from daily to monthly using to.period from xts
+
+```{r}
+FANG_data_m <- FANG_data_d %>%
+    group_by(symbol) %>%
+    tq_transmute(
+        select      = adjusted,
+        mutate_fun  = to.period,
+        period      = "months"
+    )
+
+FANG_data_m
+```
+
+## Transmute / Transformation
+
+Before Transform
+
+```{r}
+# Daily data
+FANG_data_d %>%
+    ggplot(aes(date, adjusted, color = symbol)) +
+    geom_point() +
+    geom_line() +
+    facet_wrap(~ symbol, ncol = 2, scales = "free_y") +
+    scale_color_tq() +
+    theme_tq() +
+    labs(title = "Before transformation: Too Much Data")
+```
+
+After Transform
+
+```{r}
+# Monthly data
+FANG_data_m %>%
+    ggplot(aes(date, adjusted, color = symbol)) +
+    geom_point() +
+    geom_line() +
+    facet_wrap(~ symbol, ncol = 2, scales = "free_y") +
+    scale_color_tq() +
+    theme_tq() +
+    labs(title = "After transformation: Easier to Understand")
+```
+
+## Lags
+
+Lags - Get first 5 lags
+
+```{r}
+
+# Pro Tip: Make the new column names first, then add to the `col_rename` arg
+column_names <- paste0("lag", 1:5)
+
+# First five lags are output for each group of symbols
+FANG_data_d %>%
+    select(symbol, date, adjusted) %>%
+    group_by(symbol) %>%
+    tq_mutate(
+        select     = adjusted,
+        mutate_fun = lag.xts,
+        k          = 1:5,
+        col_rename = column_names
+    )
+```
+
+
+## Rolling Functions
+
+30 and 90 day rolling averages
+
+```{r}
+FANG_data_d_avgs <- FANG_data_d %>%
+    select(symbol, date, adjusted) %>%
+    group_by(symbol) %>%
+    tq_mutate(
+        select     = adjusted,
+        mutate_fun = rollapply,
+        width      = 30,
+        FUN        = mean,
+        na.rm      = TRUE,
+        col_rename = "mean_roll_30"
+    ) %>%
+  tq_mutate(
+        select     = adjusted,
+        mutate_fun = rollapply,
+        width      = 90,
+        FUN        = mean,
+        na.rm      = TRUE,
+        col_rename = "mean_roll_90"
+    ) %>%
+  tq_mutate(
+        select     = adjusted,
+        mutate_fun = rollapply,
+        width      = 180,
+        FUN        = mean,
+        na.rm      = TRUE,
+        col_rename = "mean_roll_180"
+    ) %>%
+  tq_mutate(
+        select     = adjusted,
+        mutate_fun = rollapply,
+        width      = 270,
+        FUN        = mean,
+        na.rm      = TRUE,
+        col_rename = "mean_roll_270"
+    )
+
+
+FANG_data_m_avgs <- FANG_data_d_avgs %>%
+    group_by(symbol) %>%
+    tq_transmute(select = c("adjusted", "mean_roll_30", "mean_roll_90", "mean_roll_180", "mean_roll_270"), 
+                 mutate_fun = to.period, 
+                 period = "months")
+```
+
+
+
+```{r}
+# Daily data
+FANG_data_m_avgs %>%
+    ggplot(aes(date,adjusted,color = symbol)) +
+    geom_point() +
+    geom_line() +
+    geom_line(aes(y = mean_roll_30), color = 'green') +
+    geom_line(aes(y = mean_roll_90), color = 'red') +
+    geom_line(aes(y = mean_roll_180), color = 'blue') +
+    geom_line(aes(y = mean_roll_270), color = 'yellow') +
+    facet_wrap(~ symbol, ncol = 2, scales = "free_y") +
+    scale_color_tq() +
+    theme_tq()
+```
+
+
+
+
+
+
+```{r}
+# Rolling quantile
+FANG_data_d %>%
+    select(symbol, date, adjusted) %>%
+    group_by(symbol) %>%
+    tq_mutate(
+        select     = adjusted,
+        mutate_fun = rollapply,
+        width      = 5,
+        by.column  = FALSE,
+        FUN        = quantile,
+        probs      = c(0, 0.025, 0.25, 0.5, 0.75, 0.975, 1),
+        na.rm      = TRUE
+    )
+```
+
+## Other Functions 
+
+```{r}
+tq_transmute_fun_options()
+```
+
