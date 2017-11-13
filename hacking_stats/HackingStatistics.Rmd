@@ -1,0 +1,50 @@
+---
+title: "Hacking statistics"
+author: "Wal McConnell"
+date: "22 October 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Part 1
+https://www.r-exercises.com/2017/07/01/hacking-statistics-exercises-part-1/
+
+
+### Excrcise 1 : Use rnorm() to generate 100 points, then plot those points in an histogram.
+```{r}
+set.seed(42)
+data <- rnorm(100, mean = 0, sd = 1)
+hist(data)
+```
+
+### Exercise 2: Repeat exercise 1, but this time with, 500, 1000 and 10000 points.
+
+```{r}
+set.seed(42)
+
+data <- rnorm(500, mean = 0, sd = 1)
+hist(data)
+
+data <- rnorm(1000, mean = 0, sd = 1)
+hist(data)
+
+data <- rnorm(10000, mean = 0, sd = 1)
+hist(data)
+
+
+```
+
+## Exercise 3 - use dnorm() to plot the density 
+```{r}
+data <- rnorm(10000, mean = 0, sd = 1)
+
+x <- seq(-4, 4, 0.01)
+
+hist(data, prob=TRUE)
+curve(dnorm(x, mean=0, sd=1),add=TRUE)
+```
+
