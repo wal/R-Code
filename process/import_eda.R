@@ -39,27 +39,37 @@
 
 
                                         # EDA
+## Response Variable
+
+### Variable: 
+#### Description & Unit
+#### Distribution
+##### Intuitive, Outliers, Errors, Patterns ?
+##### Transformations
+
+
 ## NUMERIC VARIABLES
 
 ### Q: Missing Data ?
 ### Q: Correlation to Target Variable ?
-#### Per Variable EDA (in order of correlation)
-##### Description & Unit
-##### Distribution v Target Variable
-###### Intuitive, Outliers, Errors, Patterns ?
-##### Transformations
-###### Binnable ?
-
+### * Per Variable EDA (in order of correlation) 
+### Variable: 
+#### Description & Unit
+#### Distribution v Target Variable
+##### Intuitive, Outliers, Errors, Patterns ?
+#### Transformations
+##### Binnable ?
 
 ## Non Numeric Data
 ### Q: Missing Data ?
-### Q: Per Variable EDA ?
-##### Description & Unit
-##### Identify Type & code
-##### Distribution v Target Variable
-###### Intuitive, Outliers, Errors, Patterns ?
-##### Transformations
-###### Reduce number of Bins
+### Per Variable EDA (in order of correlation)
+### Variable: 
+#### Description & Unit
+#### Distribution v Target Variable
+##### Intuitive, Outliers, Errors, Patterns ?
+#### Transformations
+##### Binnable ?
+#### Reduce number of Bins
 
 ## Bivariate EDA
 ## Multivariate EDA
