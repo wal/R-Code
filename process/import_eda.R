@@ -71,6 +71,10 @@
 ##### Binnable ?
 #### Reduce number of Bins
 
+
+**** SAVE VERSION OF DATA FILE TO processed
+
+
 ## Bivariate EDA
 ## Multivariate EDA
 
