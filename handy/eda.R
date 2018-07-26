@@ -5,15 +5,15 @@
 
 ### Variables Table
 create_variables_table <- function(data) {
-  types <- test_data %>% summarise_all(class) %>% gather(Name, class)
-  unique_values <- test_data %>% summarise_all(function(x) length(unique(x))) %>% gather(Name, `Unique Values`)
-  missing_count   <- test_data %>% summarise_all(function(x) sum(is.na(x))) %>% gather(Name, `Missing Data Count`)
-  missing_percent <- test_data %>% summarise_all(function(x) round(mean(is.na(x)) * 100, 1)) %>% gather(Name, `Missing Data %`)
-
+  types <- data %>% summarise_all(function(x) class(x)[[1]]) %>% gather(Name, class)
+  unique_values <- data %>% summarise_all(function(x) length(unique(x))) %>% gather(Name, `Unique Values`)
+  missing_count   <- data %>% summarise_all(function(x) sum(is.na(x))) %>% gather(Name, `Missing Data Count`)
+  missing_percent <- data %>% summarise_all(function(x) round(mean(is.na(x)) * 100, 1)) %>% gather(Name, `Missing Data %`)
+  
   join_all(list(types, unique_values, missing_count, missing_percent), by='Name', type='left')  
 }
 
-create_variables_table(test_data) %>% arrange(Name) %>% kable()
+create_variables_table(data) %>% arrange(Name)
 
 
 ## Variation
