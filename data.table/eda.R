@@ -127,6 +127,7 @@ merged_data[, list(Total_HR = sum(HR)), by=c("playerID", "nameLast")][order(-Tot
 #     _________ _________ ________
 #  1: bondsba01     Bonds      762
 #  2: aaronha01     Aaron      755
+
 #  3:  ruthba01      Ruth      714
 #  4:  mayswi01      Mays      660
 #  5: rodrial01 Rodriguez      654
@@ -141,4 +142,7 @@ batter_summary <- merged_data[,list(Hits = sum(H),
                                     Runs = sum(R)),
                               by=c("playerID", "nameLast")]
 
-
+ggplot(batter_summary, aes(Runs, Hits)) + 
+  geom_point(position= "jitter", alpha=5/10) +
+  geom_smooth(method = "lm") +
+  theme_minimal()
