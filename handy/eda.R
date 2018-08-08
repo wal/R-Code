@@ -5,12 +5,12 @@
 
 ### Variables Table
 create_variables_table <- function(data) {
-  types <- data %>% summarise_all(function(x) class(x)[[1]]) %>% gather(Name, class)
-  unique_values <- data %>% summarise_all(function(x) length(unique(x))) %>% gather(Name, `Unique Values`)
-  missing_count   <- data %>% summarise_all(function(x) sum(is.na(x))) %>% gather(Name, `Missing Data Count`)
-  missing_percent <- data %>% summarise_all(function(x) round(mean(is.na(x)) * 100, 1)) %>% gather(Name, `Missing Data %`)
-  
-  join_all(list(types, unique_values, missing_count, missing_percent), by='Name', type='left')  
+  join_all(list(
+    data %>% summarise_all(~ class(.)[[1]]) %>% gather(Name, class),
+    data %>% summarise_all(~ length(unique(.))) %>% gather(Name, 'Unique Values'),
+    data %>% summarise_all(~ sum(is.na(.))) %>% gather(Name, 'Missing Count'),
+    data %>% summarise_all(~ mean(is.na(.))) %>% gather(Name, 'Missing %')
+), by='Name', type='left')
 }
 
 create_variables_table(data) %>% arrange(Name)
